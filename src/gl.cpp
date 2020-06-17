@@ -170,6 +170,15 @@ void shaders::use() const
 	glUseProgram(prog_);
 }
 
+bool shaders::is_current() const
+{
+	GLint prog;
+
+	glGetIntegerv(GL_CURRENT_PROGRAM, &prog);
+
+	return (GLuint)prog == prog_;
+}
+
 GLint shaders::location(const std::string &name) const
 {
 	GLint ret;

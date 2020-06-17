@@ -15,6 +15,7 @@ public:
 		  const std::string &fragment_file);
 
 	void use() const;
+	bool is_current() const;
 	GLint location(const std::string &name) const;
 private:
 	shaders(const shaders &) = delete;
