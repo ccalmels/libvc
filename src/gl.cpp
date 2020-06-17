@@ -5,9 +5,6 @@
 #include <sstream>
 #include <cassert>
 
-shaders::shaders() : prog_(0) {}
-shaders::~shaders() { glDeleteProgram(prog_); }
-
 static void print_shader_log(GLuint shader)
 {
 	int len = 0;
@@ -97,6 +94,9 @@ static bool link(GLuint program)
 
 	return true;
 }
+
+shaders::shaders() : prog_(0) {}
+shaders::~shaders() { glDeleteProgram(prog_); }
 
 bool shaders::init(const std::string &vertex_src,
 		   const std::string &fragment_src)
