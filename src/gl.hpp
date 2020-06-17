@@ -3,9 +3,8 @@
 #include <string>
 #include <GLES3/gl3.h>
 
-#include "noncopyable.hpp"
 
-class shaders : public noncopyable {
+class shaders {
 public:
 	shaders();
 	~shaders();
@@ -18,5 +17,8 @@ public:
 	void use() const;
 	GLint location(const std::string &name) const;
 private:
+	shaders(const shaders &) = delete;
+	shaders &operator=(const shaders &) = delete;
+
 	GLuint prog_;
 };
