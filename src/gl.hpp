@@ -17,6 +17,9 @@ public:
 	void use() const;
 	bool is_current() const;
 	GLint location(const std::string &name) const;
+
+	bool set(const std::string &name, int value) const;
+	bool set(const std::string &name, float value) const;
 private:
 	shaders(const shaders &) = delete;
 	shaders &operator=(const shaders &) = delete;

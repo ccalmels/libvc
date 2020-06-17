@@ -189,3 +189,31 @@ GLint shaders::location(const std::string &name) const
 
 	return ret;
 }
+
+bool shaders::set(const std::string &name, int value) const
+{
+	GLint loc;
+
+	assert(is_current());
+
+	loc = location(name);
+	if (loc == -1)
+		return false;
+
+	glUniform1i(loc, value);
+	return true;
+}
+
+bool shaders::set(const std::string &name, float value) const
+{
+	GLint loc;
+
+	assert(is_current());
+
+	loc = location(name);
+	if (loc == -1)
+		return false;
+
+	glUniform1f(loc, value);
+	return true;
+}
