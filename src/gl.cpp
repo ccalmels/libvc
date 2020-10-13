@@ -147,7 +147,7 @@ namespace gl {
 program::program(const std::string &vertex_src,
 		 const std::string &fragment_src) : id(0)
 {
-	assert(create_program(vertex_src, fragment_src) == true);
+	assert((id = create_program(vertex_src, fragment_src)));
 }
 
 program::~program()
