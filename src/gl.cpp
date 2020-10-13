@@ -212,7 +212,7 @@ bool program::set(const std::string &name, float value) const
 }
 
 texture::texture(GLenum format, int w, int h, const void *data)
-	: w(w), h(h), format(format), id(create_texture(w, h, format, data)) {}
+	: w(w), h(h), format(format), id(create_texture(format, w, h, data)) {}
 
 texture::~texture()
 {
@@ -258,7 +258,7 @@ framebuffer::framebuffer(int w, int h)
 	glGenFramebuffers(1, &id);
 	glBindFramebuffer(GL_FRAMEBUFFER, id);
 
-	tex = create_texture(w, h, GL_RGBA, nullptr);
+	tex = create_texture(GL_RGBA, w, h, nullptr);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
 			       GL_TEXTURE_2D, tex, 0);
 
