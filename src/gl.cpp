@@ -1,9 +1,7 @@
-#include "gl.hpp"
-
-#include <iostream>
-#include <fstream>
-#include <sstream>
 #include <cassert>
+#include <iostream>
+
+#include "gl.hpp"
 
 static void print_shader_log(GLuint shader)
 {
@@ -95,106 +93,103 @@ static bool link(GLuint program)
 	return true;
 }
 
-shaders::shaders() : prog_(0) {}
-shaders::~shaders() { glDeleteProgram(prog_); }
-
-bool shaders::init(const std::string &vertex_src,
-		   const std::string &fragment_src)
+GLuint create_program(const std::string &vertex_src,
+		      const std::string &fragment_src)
 {
-	GLuint vertex = 0, fragment = 0;
+	GLuint vertex, fragment, id;
 	bool ret = false;
 
-	glDeleteProgram(prog_);
-
-	prog_ = glCreateProgram();
-	if (!prog_) {
+	id = glCreateProgram();
+	if (!id) {
 		std::cerr << "glCreateProgram: " << glGetError() << std::endl;
-		return false;
+		return 0;
 	}
 
-	vertex = attach_shader(prog_, GL_VERTEX_SHADER, vertex_src);
+	vertex = attach_shader(id, GL_VERTEX_SHADER, vertex_src);
 	if (!vertex)
-		return false;
+		goto delete_program;
 
-	fragment = attach_shader(prog_, GL_FRAGMENT_SHADER, fragment_src);
+	fragment = attach_shader(id, GL_FRAGMENT_SHADER, fragment_src);
 	if (!fragment)
 		goto clean_vertex;
 
-	ret = link(prog_);
+	ret = link(id);
 
-	clean_shader(prog_, fragment);
+	clean_shader(id, fragment);
 clean_vertex:
-	clean_shader(prog_, vertex);
-	return ret;
+	clean_shader(id, vertex);
+	if (ret)
+		return id;
+delete_program:
+	glDeleteProgram(id);
+	return 0;
 }
 
-static std::string read_file(const std::string &file)
+static GLuint create_texture(GLenum format, int w, int h, const void *data)
 {
-#ifndef VC_SHADERS_PATH
-#warning VC_SHADERS_PATH not defined
-#define VC_SHADERS_PATH "."
-#endif
-	std::string path;
-	std::ifstream ifs;
-	std::stringstream sstr;
-	char *env_path = getenv("VC_SHADERS_PATH");
+	GLuint id;
 
-	path = env_path ? env_path : VC_SHADERS_PATH;
+	glGenTextures(1, &id);
 
-	ifs.open(path + "/" + file);
-	if (!ifs) {
-		std::cerr << "unable to open: " << file << std::endl;
-		return "";
+	glBindTexture(GL_TEXTURE_2D, id);
+	glTexImage2D(GL_TEXTURE_2D, 0, format, w, h , 0, format,
+		     GL_UNSIGNED_BYTE, data);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+	glBindTexture(GL_TEXTURE_2D, 0);
+	return id;
+}
+
+namespace gl {
+
+program::program(const std::string &vertex_src,
+		 const std::string &fragment_src) : id(0)
+{
+	assert(create_program(vertex_src, fragment_src) == true);
+}
+
+program::~program()
+{
+	glDeleteProgram(id);
+}
+
+program::program(program &&o) : id(o.id)
+{
+	o.id = 0;
+}
+
+program &program::operator=(program &&o)
+{
+	if (id != o.id) {
+		glDeleteProgram(id);
+
+		id = o.id;
+		o.id = 0;
 	}
-
-	sstr << ifs.rdbuf();
-	return sstr.str();
+	return *this;
 }
 
-bool shaders::load(const std::string &vertex_file,
-		   const std::string &fragment_file)
+void program::use() const
 {
-	std::string vertex_src, fragment_src;
-
-	vertex_src   = read_file(vertex_file);
-	fragment_src = read_file(fragment_file);
-
-	if (vertex_src.empty() || fragment_src.empty())
-		return false;
-
-	return init(vertex_src, fragment_src);
+	glUseProgram(id);
 }
 
-void shaders::use() const
-{
-	glUseProgram(prog_);
-}
-
-bool shaders::is_current() const
-{
-	GLint prog;
-
-	glGetIntegerv(GL_CURRENT_PROGRAM, &prog);
-
-	return (GLuint)prog == prog_;
-}
-
-GLint shaders::location(const std::string &name) const
+GLint program::location(const std::string &name) const
 {
 	GLint ret;
 
-	ret = glGetUniformLocation(prog_, name.c_str());
+	ret = glGetUniformLocation(id, name.c_str());
 	if (ret == -1)
-                ret = glGetAttribLocation(prog_, name.c_str());
+		ret = glGetAttribLocation(id, name.c_str());
 
 	return ret;
 }
 
-bool shaders::set(const std::string &name, int value) const
+bool program::set(const std::string &name, int value) const
 {
 	GLint loc;
-
-	assert(is_current());
 
 	loc = location(name);
 	if (loc == -1)
@@ -204,11 +199,9 @@ bool shaders::set(const std::string &name, int value) const
 	return true;
 }
 
-bool shaders::set(const std::string &name, float value) const
+bool program::set(const std::string &name, float value) const
 {
 	GLint loc;
-
-	assert(is_current());
 
 	loc = location(name);
 	if (loc == -1)
@@ -216,4 +209,102 @@ bool shaders::set(const std::string &name, float value) const
 
 	glUniform1f(loc, value);
 	return true;
+}
+
+texture::texture(GLenum format, int w, int h, const void *data)
+	: w(w), h(h), format(format), id(create_texture(w, h, format, data)) {}
+
+texture::~texture()
+{
+	glDeleteTextures(1, &id);
+}
+
+texture::texture(texture &&o) : w(o.w), h(o.h), format(o.format), id(o.id)
+{
+	o.id = 0;
+}
+
+texture &texture::operator=(texture &&o)
+{
+	if (id != o.id) {
+		glDeleteTextures(1, &id);
+
+		w = o.w;
+		h = o.h;
+		format = o.format;
+		id = o.id;
+
+		o.id = 0;
+	}
+	return *this;
+}
+
+void texture::update(const void *data)
+{
+	glBindTexture(GL_TEXTURE_2D, id);
+	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, w, h, format,
+			GL_UNSIGNED_BYTE, data);
+	glBindTexture(GL_TEXTURE_2D, 0);
+}
+
+void texture::active(int n)
+{
+	glActiveTexture(GL_TEXTURE0 + n);
+	glBindTexture(GL_TEXTURE_2D, id);
+}
+
+framebuffer::framebuffer(int w, int h)
+{
+	glGenFramebuffers(1, &id);
+	glBindFramebuffer(GL_FRAMEBUFFER, id);
+
+	tex = create_texture(w, h, GL_RGBA, nullptr);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
+			       GL_TEXTURE_2D, tex, 0);
+
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+framebuffer::framebuffer() : id(0), tex(0) {}
+
+framebuffer::~framebuffer()
+{
+	glDeleteFramebuffers(1, &id);
+	glDeleteTextures(1, &tex);
+}
+
+framebuffer::framebuffer(framebuffer &&o) : id(o.id), tex(o.tex)
+{
+	o.id = 0;
+	o.tex = 0;
+}
+
+framebuffer &framebuffer::operator=(framebuffer &&o)
+{
+	if (id != o.id) {
+		glDeleteFramebuffers(1, &id);
+		glDeleteTextures(1, &tex);
+
+		id = o.id;
+		tex = o.tex;
+
+		o.id = 0;
+		o.tex = 0;
+	}
+	return *this;
+}
+
+void framebuffer::bind()
+{
+	glBindFramebuffer(GL_FRAMEBUFFER, id);
+	assert(glCheckFramebufferStatus(GL_FRAMEBUFFER)
+	       == GL_FRAMEBUFFER_COMPLETE);
+}
+
+framebuffer &framebuffer::get_default()
+{
+	static framebuffer def;
+	return def;
+}
+
 }
