@@ -194,7 +194,7 @@ bool program::set(const std::string &name, int v0) const
 {
 	GLint loc;
 
-	loc = location(name);
+	loc = glGetUniformLocation(id, name.c_str());
 	if (loc == -1)
 		return false;
 
@@ -206,7 +206,7 @@ bool program::set(const std::string &name, float v0) const
 {
 	GLint loc;
 
-	loc = location(name);
+	loc = glGetUniformLocation(id, name.c_str());
 	if (loc == -1)
 		return false;
 
@@ -218,7 +218,7 @@ bool program::set(const std::string &name, float v0, float v1) const
 {
 	GLint loc;
 
-	loc = location(name);
+	loc = glGetUniformLocation(id, name.c_str());
 	if (loc == -1)
 		return false;
 
@@ -230,7 +230,7 @@ bool program::set(const std::string &name, float v0, float v1, float v2) const
 {
 	GLint loc;
 
-	loc = location(name);
+	loc = glGetUniformLocation(id, name.c_str());
 	if (loc == -1)
 		return false;
 
