@@ -19,8 +19,10 @@ public:
 
         void use() const;
         GLint location(const std::string &name) const;
-	bool set(const std::string &name, int value) const;
-	bool set(const std::string &name, float value) const;
+	bool set(const std::string &name, int v0) const;
+	bool set(const std::string &name, float v0) const;
+	bool set(const std::string &name, float v0, float v1) const;
+	bool set(const std::string &name, float v0, float v1, float v2) const;
 private:
 	program(const program&) = delete;
 	program &operator=(const program &) = delete;

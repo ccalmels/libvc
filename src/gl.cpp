@@ -190,7 +190,7 @@ GLint program::location(const std::string &name) const
 	return ret;
 }
 
-bool program::set(const std::string &name, int value) const
+bool program::set(const std::string &name, int v0) const
 {
 	GLint loc;
 
@@ -198,11 +198,11 @@ bool program::set(const std::string &name, int value) const
 	if (loc == -1)
 		return false;
 
-	glUniform1i(loc, value);
+	glUniform1i(loc, v0);
 	return true;
 }
 
-bool program::set(const std::string &name, float value) const
+bool program::set(const std::string &name, float v0) const
 {
 	GLint loc;
 
@@ -210,7 +210,31 @@ bool program::set(const std::string &name, float value) const
 	if (loc == -1)
 		return false;
 
-	glUniform1f(loc, value);
+	glUniform1f(loc, v0);
+	return true;
+}
+
+bool program::set(const std::string &name, float v0, float v1) const
+{
+	GLint loc;
+
+	loc = location(name);
+	if (loc == -1)
+		return false;
+
+	glUniform2f(loc, v0, v1);
+	return true;
+}
+
+bool program::set(const std::string &name, float v0, float v1, float v2) const
+{
+	GLint loc;
+
+	loc = location(name);
+	if (loc == -1)
+		return false;
+
+	glUniform3f(loc, v0, v1, v2);
 	return true;
 }
 
