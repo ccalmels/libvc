@@ -147,10 +147,10 @@ static GLuint create_texture(GLenum format, int w, int h, const void *data)
 
 namespace gl {
 
-program::program(const std::string &vertex_src,
-		 const std::string &fragment_src) : id(0)
+program::program(const std::string &vertex_src, const std::string &fragment_src)
+	: id(create_program(vertex_src, fragment_src))
 {
-	assert((id = create_program(vertex_src, fragment_src)));
+	assert(id);
 }
 
 program::~program()
