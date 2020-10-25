@@ -334,4 +334,9 @@ framebuffer &framebuffer::get_default()
 	return def;
 }
 
+std::string version()
+{
+	return (char*)glGetString(GL_VERSION);
+}
+
 }

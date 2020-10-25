@@ -68,4 +68,6 @@ private:
 	GLuint id, tex;
 };
 
+std::string version();
+
 }
