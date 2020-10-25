@@ -25,6 +25,10 @@ sdl_test = executable('sdl_test', 'tests/sdl.cpp',
                       dependencies: libvc_dep)
 test('sdl test', sdl_test)
 
+sdl_egl_test = executable('sdl_egl_test', 'tests/sdl_egl.cpp',
+			  dependencies: libvc_dep)
+test('sdl(egl) test', sdl_egl_test)
+
 egl_test = executable('egl_test', 'tests/egl.cpp',
                       dependencies: libvc_dep)
 test('egl test', egl_test)
