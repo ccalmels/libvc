@@ -11,8 +11,8 @@ lib = library('vc',
 	      dependencies: deps, install: true)
 
 libvc_dep = declare_dependency(dependencies: deps,
-			       include_directories : include_directories('src'),
-			       link_with : lib)
+			       include_directories: include_directories('src'),
+			       link_with: lib)
 
 install_headers([ 'src/sdl.hpp', 'src/egl.hpp', 'src/gl.hpp' ], subdir: 'vc')
 
