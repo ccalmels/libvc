@@ -7,12 +7,18 @@
 #include <SDL2/SDL_syswm.h>
 
 static bool initialize(EGLDisplay display, EGLint *config_attr,
-		       EGLint *context_attr, EGLNativeWindowType window)
+		       EGLNativeWindowType window)
 {
 	EGLConfig config;
 	EGLint configs_count;
 	EGLContext context;
 	EGLSurface surface;
+	EGLint egl_context_attr[] = {
+		EGL_CONTEXT_OPENGL_PROFILE_MASK, EGL_CONTEXT_OPENGL_CORE_PROFILE_BIT,
+		EGL_CONTEXT_MAJOR_VERSION, 4,
+		EGL_CONTEXT_MINOR_VERSION, 5,
+		EGL_NONE
+	};
 
 	if (eglInitialize(display, nullptr, nullptr) == EGL_FALSE)
 		return false;
@@ -24,7 +30,7 @@ static bool initialize(EGLDisplay display, EGLint *config_attr,
 	if (eglBindAPI(EGL_OPENGL_API) == EGL_FALSE)
 		return false;
 
-	context = eglCreateContext(display, config, EGL_NO_CONTEXT, context_attr);
+	context = eglCreateContext(display, config, EGL_NO_CONTEXT, egl_context_attr);
 	if (context == EGL_NO_CONTEXT)
 		return false;
 
@@ -85,7 +91,7 @@ bool init(int gpu)
 	if (display == EGL_NO_DISPLAY)
 		return false;
 
-	if (!initialize(display, egl_config_attr, nullptr, 0))
+	if (!initialize(display, egl_config_attr, 0))
 	    return false;
 
 	return true;
@@ -124,17 +130,12 @@ bool init(const std::string &name, int &width, int &height, int flags)
 		EGL_RENDERABLE_TYPE, EGL_OPENGL_BIT,
 		EGL_NONE
 	};
-	EGLint egl_context_attr[] = {
-		EGL_CONTEXT_MAJOR_VERSION, 4,
-		EGL_CONTEXT_MINOR_VERSION, 5,
-		EGL_NONE
-	};
 
 	display = eglGetDisplay(wm.info.x11.display);
 	if (display == EGL_NO_DISPLAY)
 		return false;
 
-	if (!initialize(display, egl_config_attr, egl_context_attr,
+	if (!initialize(display, egl_config_attr,
 			(EGLNativeWindowType)wm.info.x11.window))
 		return false;
 
