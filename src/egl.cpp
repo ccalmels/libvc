@@ -3,10 +3,6 @@
 #include <EGL/egl.h>
 #include <EGL/eglext.h>
 
-#define GL_GLEXT_PROTOTYPES
-#include <GL/gl.h>
-#include <GL/glext.h>
-
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_syswm.h>
 
