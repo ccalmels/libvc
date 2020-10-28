@@ -69,5 +69,6 @@ private:
 };
 
 std::string version();
+bool has_extension(const std::string &name);
 
 }

@@ -339,4 +339,17 @@ std::string version()
 	return (char*)glGetString(GL_VERSION);
 }
 
+bool has_extension(const std::string &name)
+{
+	GLint i, num;
+
+	glGetIntegerv(GL_NUM_EXTENSIONS, &num);
+
+	for (i = 0; i < num; i++)
+		if (name.compare((char*)glGetStringi(GL_EXTENSIONS, i)) == 0)
+			return true;
+
+	return false;
+}
+
 }
