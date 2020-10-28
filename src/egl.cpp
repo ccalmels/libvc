@@ -5,6 +5,7 @@
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_syswm.h>
+#include <wayland-egl.h>
 
 static bool initialize(EGLDisplay display, EGLint *config_attr,
 		       EGLNativeWindowType window)
@@ -116,10 +117,20 @@ bool init(const std::string &name, int &width, int &height, int flags)
 	SDL_SysWMinfo wm;
 	SDL_VERSION(&wm.version);
 	SDL_GetWindowWMInfo(window, &wm);
-	if (wm.subsystem != SDL_SYSWM_X11) {
-		std::cerr << "not running on X11" << std::endl;
+
+	NativeDisplayType native_display;
+	EGLNativeWindowType native_window;
+
+	if (wm.subsystem == SDL_SYSWM_X11) {
+		native_display = wm.info.x11.display;
+		native_window = wm.info.x11.window;
+	} else if (wm.subsystem == SDL_SYSWM_WAYLAND) {
+		native_display = (NativeDisplayType)wm.info.wl.display;
+		native_window = (EGLNativeWindowType)wl_egl_window_create(wm.info.wl.surface, width, height);
+		if (!native_window)
+			return false;
+	} else
 		return false;
-	}
 
 	EGLDisplay  display;
 	EGLint egl_config_attr[] = {
@@ -131,12 +142,11 @@ bool init(const std::string &name, int &width, int &height, int flags)
 		EGL_NONE
 	};
 
-	display = eglGetDisplay(wm.info.x11.display);
+	display = eglGetDisplay(native_display);
 	if (display == EGL_NO_DISPLAY)
 		return false;
 
-	if (!initialize(display, egl_config_attr,
-			(EGLNativeWindowType)wm.info.x11.window))
+	if (!initialize(display, egl_config_attr, native_window))
 		return false;
 
 	eglSwapInterval(display, 1);

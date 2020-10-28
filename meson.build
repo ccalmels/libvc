@@ -2,6 +2,7 @@ project('libvc', 'cpp', default_options: [ 'cpp_std=c++14' ])
 
 deps = [ dependency('sdl2'),
 	 dependency('egl'),
+	 dependency('wayland-egl'),
 	 dependency('gl') ]
 
 lib = library('vc',
