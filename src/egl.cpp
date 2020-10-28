@@ -163,4 +163,11 @@ std::string version()
 	return eglQueryString(eglGetCurrentDisplay(), EGL_VERSION);
 }
 
+bool has_extension(const std::string &name)
+{
+	std::string exts = eglQueryString(eglGetCurrentDisplay(), EGL_EXTENSIONS);
+
+	return exts.find(name) != std::string::npos;
+}
+
 }

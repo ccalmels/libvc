@@ -9,5 +9,6 @@ bool init(const std::string &name, int &width, int &height, int flags = 0);
 void fini();
 
 std::string version();
+bool has_extension(const std::string &name);
 
 };
