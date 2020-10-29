@@ -1,3 +1,5 @@
+#include "egl.hpp"
+
 #include <iostream>
 
 #include <EGL/egl.h>
@@ -62,9 +64,8 @@ bool init(int gpu)
 		EGL_NONE
 	};
 
-	std::string exts = eglQueryString(EGL_NO_DISPLAY, EGL_EXTENSIONS);
-	if (exts.find("EGL_EXT_device_base") == std::string::npos
-	    || exts.find("EGL_EXT_platform_base") == std::string::npos) {
+	if (!has_extension("EGL_EXT_device_base")
+	    || !has_extension("EGL_EXT_platform_base")) {
 		std::cerr << "extensions not presents" << std::endl;
 		return false;
 	}
