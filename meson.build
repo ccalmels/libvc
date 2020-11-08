@@ -34,6 +34,6 @@ egl_test = executable('egl_test', 'tests/egl.cpp',
                       dependencies: libvc_dep)
 test('egl test', egl_test)
 
-program_test = executable('program_test', 'tests/program.cpp',
-			  dependencies: libvc_dep)
-test('gl::program test', program_test)
+gl_test = executable('gl_test', 'tests/gl.cpp',
+		     dependencies: libvc_dep)
+test('gl test', gl_test)
