@@ -43,7 +43,7 @@ public:
 private:
 	texture(const texture &) = delete;
 	texture &operator=(const texture &) = delete;
-
+public:
 	int w, h;
 	GLenum format;
 	GLuint id;
