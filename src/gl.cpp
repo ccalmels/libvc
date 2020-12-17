@@ -292,6 +292,17 @@ framebuffer::framebuffer(int w, int h)
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
+framebuffer::framebuffer(const texture &t) : tex(t.id)
+{
+	glGenFramebuffers(1, &id);
+	glBindFramebuffer(GL_FRAMEBUFFER, id);
+
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
+			       GL_TEXTURE_2D, tex, 0);
+
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
 framebuffer::framebuffer() : id(0), tex(0) {}
 
 framebuffer::~framebuffer()

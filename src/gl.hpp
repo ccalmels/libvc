@@ -52,6 +52,7 @@ public:
 class framebuffer {
 public:
 	framebuffer(int w, int h);
+	framebuffer(const texture &t);
 	~framebuffer();
 
 	framebuffer(framebuffer &&o);
@@ -64,7 +65,7 @@ private:
 	framebuffer();
 	framebuffer(const framebuffer &) = delete;
 	framebuffer &operator=(const framebuffer &) = delete;
-
+public:
 	GLuint id, tex;
 };
 
