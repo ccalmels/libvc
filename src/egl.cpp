@@ -5,9 +5,11 @@
 #include <EGL/egl.h>
 #include <EGL/eglext.h>
 
+#if HAS_SDL2
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_syswm.h>
 #include <wayland-egl.h>
+#endif
 
 static bool initialize(EGLDisplay display, EGLint *config_attr,
 		       EGLNativeWindowType window)
@@ -99,6 +101,7 @@ bool init(int gpu)
 	return true;
 }
 
+#if HAS_SDL2
 bool init(const std::string &name, int &width, int &height, int flags)
 {
 	if (SDL_Init(SDL_INIT_VIDEO) != 0) {
@@ -153,6 +156,12 @@ bool init(const std::string &name, int &width, int &height, int flags)
 	eglSwapInterval(display, 1);
 	return true;
 }
+#else
+bool init(const std::string &name, int &width, int &height, int flags)
+{
+	return false;
+}
+#endif
 
 void fini()
 {
